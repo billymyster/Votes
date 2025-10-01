@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Song Ranking Vote</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+    }
+    form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    select {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background: #007bff;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Rank Your Top 5 Songs</h1>
+  <form id="voteForm">
+    <label for="first">1st Place (5 points)</label>
+    <select id="first" name="first" required></select>
+
+    <label for="second">2nd Place (4 points)</label>
+    <select id="second" name="second" required></select>
+
+    <label for="third">3rd Place (3 points)</label>
+    <select id="third" name="third" required></select>
+
+    <label for="fourth">4th Place (2 points)</label>
+    <select id="fourth" name="fourth" required></select>
+
+    <label for="fifth">5th Place (1 point)</label>
+    <select id="fifth" name="fifth" required></select>
+
+    <button type="submit">Submit Vote</button>
+  </form>
+
+  <script>
+    const songs = [
+      "Say It Ain't So - Weezer",
+      "Halloween - AFI",
+      "I Miss You - Blink 182",
+      "Hunger Strike - Temple of the Dog",
+      "Chop Suey! - System of a Down"
+    ];
+
+    // Populate dropdowns
+    const selects = document.querySelectorAll("select");
+    selects.forEach(select => {
+      songs.forEach(song => {
+        const option = document.createElement("option");
+        option.value = song;
+        option.textContent = song;
+        select.appendChild(option);
+      });
+    });
+
+    // Prevent duplicates
+    function updateDropdowns() {
+      const chosen = Array.from(selects).map(s => s.value);
+      selects.forEach(select => {
+        Array.from(select.options).forEach(opt => {
+          opt.disabled = chosen.includes(opt.value) && select.value !== opt.value;
+        });
+      });
+    }
+
+    selects.forEach(select => {
+      select.addEventListener("change", updateDropdowns);
+    });
+
+    // Submit to Google Sheets
+    document.getElementById("voteForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const data = {
+        first: document.getElementById("first").value,
+        second: document.getElementById("second").value,
+        third: document.getElementById("third").value,
+        fourth: document.getElementById("fourth").value,
+        fifth: document.getElementById("fifth").value
+      };
+
+      fetch("https://script.google.com/macros/s/AKfycbwxE0WgncwXb3f9f4zotVkLOqh15ye7e5d-Lcx9pGKJBt1kNRMA8g3eO6TBokjDvxmLcQ/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      }).then(() => {
+        alert("Thanks for voting!");
+        document.getElementById("voteForm").reset();
+      }).catch(err => {
+        alert("Error submitting vote: " + err);
+      });
+    });
+  </script>
+</body>
+</html>
