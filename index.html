@@ -1,21 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rank Your Top 5 Songs</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #fff;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    }
+    form {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 25px;
+      border-radius: 15px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    select {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background: #ff6f61;
+      border: none;
+      color: white;
+      border-radius: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #ff3b2e;
+    }
+    #scoreboard {
+      max-width: 600px;
+      margin: 20px auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      list-style: none;
+    }
+    #scoreboard li {
+      padding: 10px;
+      margin: 5px 0;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+      color: #fff;
+    }
+  </style>
+</head>
 <body>
   <h1>Rank Your Top 5 Songs</h1>
 
-  <!-- 1️⃣ Voting Form -->
   <form id="voteForm">
-    <select id="first" name="first"></select>
-    <select id="second" name="second"></select>
-    <select id="third" name="third"></select>
-    <select id="fourth" name="fourth"></select>
-    <select id="fifth" name="fifth"></select>
+    <label for="first">First Pick (5 points)</label>
+    <select id="first" name="first" required></select>
+
+    <label for="second">Second Pick (4 points)</label>
+    <select id="second" name="second" required></select>
+
+    <label for="third">Third Pick (3 points)</label>
+    <select id="third" name="third" required></select>
+
+    <label for="fourth">Fourth Pick (2 points)</label>
+    <select id="fourth" name="fourth" required></select>
+
+    <label for="fifth">Fifth Pick (1 point)</label>
+    <select id="fifth" name="fifth" required></select>
+
     <button type="submit">Submit Vote</button>
   </form>
 
-  <!-- 2️⃣ Scoreboard -->
   <h2>Current Scores</h2>
   <ul id="scoreboard"></ul>
 
-  <!-- 3️⃣ JavaScript -->
   <script>
     const songs = [
       "Say It Ain't So - Weezer",
@@ -25,39 +102,52 @@
       "Chop Suey! - System of a Down"
     ];
 
-    const SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhY3APOqlZaTGCZgK2qjNENIrYINXc-eYuOxoUKIr6Ou6a4UBc2JfVlJmtN1w-Sy_OzA/exec";
+    
+    const selects = [
+      document.getElementById("first"),
+      document.getElementById("second"),
+      document.getElementById("third"),
+      document.getElementById("fourth"),
+      document.getElementById("fifth")
+    ];
 
     // Populate dropdowns
-    const selects = document.querySelectorAll("select");
-    selects.forEach(select => {
-      songs.forEach(song => {
-        const option = document.createElement("option");
-        option.value = song;
-        option.textContent = song;
-        select.appendChild(option);
+    function populateSelects() {
+      selects.forEach(select => {
+        select.innerHTML = "";
+        songs.forEach(song => {
+          const option = document.createElement("option");
+          option.value = song;
+          option.textContent = song;
+          select.appendChild(option);
+        });
       });
-    });
+    }
 
-    // Prevent duplicate selections
-    function updateDropdowns() {
-      const chosen = Array.from(selects).map(s => s.value);
+    populateSelects();
+
+    // Prevent duplicates
+    function preventDuplicates() {
+      const chosen = selects.map(s => s.value);
       selects.forEach(select => {
         Array.from(select.options).forEach(opt => {
           opt.disabled = chosen.includes(opt.value) && select.value !== opt.value;
         });
       });
     }
-    selects.forEach(select => select.addEventListener("change", updateDropdowns));
 
-    // 3️⃣a Submit vote (POST)
+    selects.forEach(select => select.addEventListener("change", preventDuplicates));
+
+    // Submit vote (POST)
     document.getElementById("voteForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const data = {
-        first: document.getElementById("first").value,
-        second: document.getElementById("second").value,
-        third: document.getElementById("third").value,
-        fourth: document.getElementById("fourth").value,
-        fifth: document.getElementById("fifth").value
+        first: selects[0].value,
+        second: selects[1].value,
+        third: selects[2].value,
+        fourth: selects[3].value,
+        fifth: selects[4].value
       };
 
       fetch(SCRIPT_URL, {
@@ -69,12 +159,13 @@
       .then(() => {
         alert("Thanks for voting!");
         document.getElementById("voteForm").reset();
-        updateScores(); // refresh scoreboard after vote
+        populateSelects(); // reset dropdowns to re-enable all options
+        updateScores(); // refresh scoreboard immediately
       })
       .catch(err => alert("Error submitting vote: " + err));
     });
 
-    // 3️⃣b Fetch scores (GET)
+    // Fetch scores (GET)
     function updateScores() {
       fetch(SCRIPT_URL)
         .then(res => res.json())
@@ -94,3 +185,4 @@
     updateScores();
   </script>
 </body>
+</html>
