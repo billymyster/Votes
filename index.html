@@ -105,7 +105,6 @@ const songs = [
   "Chop Suey! - System of a Down"
 ];
 
-// Replace this with your deployed Apps Script Web App URL
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzieO4TSH-kfYm5yABPLTguCCkVOi8SZGVFYtyuwdce4SgOKHxrOgaxMLgyHUOU-93TNg/exec";
 
 const selects = [
@@ -116,7 +115,6 @@ const selects = [
   document.getElementById("fifth")
 ];
 
-// Populate dropdowns
 function populateSelects() {
   selects.forEach(select => {
     select.innerHTML = "<option value=''>--Select a song--</option>";
@@ -131,7 +129,6 @@ function populateSelects() {
 
 populateSelects();
 
-// Prevent duplicate selections
 function updateOptions() {
   const chosen = selects.map(s => s.value).filter(v => v);
   selects.forEach(select => {
@@ -143,7 +140,7 @@ function updateOptions() {
 
 selects.forEach(select => select.addEventListener("change", updateOptions));
 
-// Submit vote
+
 document.getElementById("voteForm").addEventListener("submit", function(e) {
   e.preventDefault();
   const data = {
@@ -169,14 +166,12 @@ document.getElementById("voteForm").addEventListener("submit", function(e) {
   .catch(err => alert("Error submitting vote: " + err));
 });
 
-// Fetch scores and highlight top 3
 function updateScores() {
   fetch(SCRIPT_URL)
     .then(res => res.json())
     .then(data => {
       const scoreboard = document.getElementById("scoreboard");
       scoreboard.innerHTML = "";
-      // Sort descending by score
       data.sort((a,b) => b.score - a.score);
       data.forEach((item, index) => {
         const li = document.createElement("li");
@@ -189,11 +184,11 @@ function updateScores() {
     });
 }
 
-// Auto-refresh every 10 seconds
 setInterval(updateScores, 10000);
 updateScores();
 </script>
 
 </body>
 </html>
+
 
