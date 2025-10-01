@@ -1,69 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Song Ranking Vote</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
-      max-width: 600px;
-      margin: auto;
-    }
-    h1 {
-      text-align: center;
-    }
-    form {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    select {
-      width: 100%;
-      margin: 10px 0;
-      padding: 10px;
-      border-radius: 5px;
-    }
-    button {
-      display: block;
-      width: 100%;
-      padding: 12px;
-      margin-top: 20px;
-      background: #007bff;
-      border: none;
-      color: white;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-  </style>
-</head>
 <body>
   <h1>Rank Your Top 5 Songs</h1>
+
+  <!-- 1️⃣ Voting Form -->
   <form id="voteForm">
-    <label for="first">1st Place (5 points)</label>
-    <select id="first" name="first" required></select>
-
-    <label for="second">2nd Place (4 points)</label>
-    <select id="second" name="second" required></select>
-
-    <label for="third">3rd Place (3 points)</label>
-    <select id="third" name="third" required></select>
-
-    <label for="fourth">4th Place (2 points)</label>
-    <select id="fourth" name="fourth" required></select>
-
-    <label for="fifth">5th Place (1 point)</label>
-    <select id="fifth" name="fifth" required></select>
-
+    <select id="first" name="first"></select>
+    <select id="second" name="second"></select>
+    <select id="third" name="third"></select>
+    <select id="fourth" name="fourth"></select>
+    <select id="fifth" name="fifth"></select>
     <button type="submit">Submit Vote</button>
   </form>
 
+  <!-- 2️⃣ Scoreboard -->
+  <h2>Current Scores</h2>
+  <ul id="scoreboard"></ul>
+
+  <!-- 3️⃣ JavaScript -->
   <script>
     const songs = [
       "Say It Ain't So - Weezer",
@@ -72,6 +24,8 @@
       "Hunger Strike - Temple of the Dog",
       "Chop Suey! - System of a Down"
     ];
+
+    const SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE";
 
     // Populate dropdowns
     const selects = document.querySelectorAll("select");
@@ -84,7 +38,7 @@
       });
     });
 
-    // Prevent duplicates
+    // Prevent duplicate selections
     function updateDropdowns() {
       const chosen = Array.from(selects).map(s => s.value);
       selects.forEach(select => {
@@ -93,15 +47,11 @@
         });
       });
     }
+    selects.forEach(select => select.addEventListener("change", updateDropdowns));
 
-    selects.forEach(select => {
-      select.addEventListener("change", updateDropdowns);
-    });
-
-    // Submit to Google Sheets
+    // 3️⃣a Submit vote (POST)
     document.getElementById("voteForm").addEventListener("submit", function(e) {
       e.preventDefault();
-
       const data = {
         first: document.getElementById("first").value,
         second: document.getElementById("second").value,
@@ -110,18 +60,37 @@
         fifth: document.getElementById("fifth").value
       };
 
-      fetch("https://script.google.com/macros/s/AKfycbwxE0WgncwXb3f9f4zotVkLOqh15ye7e5d-Lcx9pGKJBt1kNRMA8g3eO6TBokjDvxmLcQ/exec", {
+      fetch(SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
-      }).then(() => {
+      })
+      .then(() => {
         alert("Thanks for voting!");
         document.getElementById("voteForm").reset();
-      }).catch(err => {
-        alert("Error submitting vote: " + err);
-      });
+        updateScores(); // refresh scoreboard after vote
+      })
+      .catch(err => alert("Error submitting vote: " + err));
     });
+
+    // 3️⃣b Fetch scores (GET)
+    function updateScores() {
+      fetch(SCRIPT_URL)
+        .then(res => res.json())
+        .then(data => {
+          const scoreboard = document.getElementById("scoreboard");
+          scoreboard.innerHTML = "";
+          data.sort((a,b) => b.score - a.score).forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = `${item.song}: ${item.score} points`;
+            scoreboard.appendChild(li);
+          });
+        });
+    }
+
+    // Auto-refresh every 10 seconds
+    setInterval(updateScores, 10000);
+    updateScores();
   </script>
 </body>
-</html>
