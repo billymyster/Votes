@@ -48,14 +48,18 @@ button {
 button:hover {
   background: #ff3b2e;
 }
-#scoreboard {
+#scoreContainer {
   max-width: 600px;
   margin: 20px auto;
   background: rgba(255, 255, 255, 0.1);
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  display: none; 
+}
+#scoreboard {
   list-style: none;
+  padding: 0;
 }
 #scoreboard li {
   padding: 10px;
@@ -65,19 +69,13 @@ button:hover {
   font-size: 16px;
   color: #fff;
 }
-.gold { background-color: gold; color: #000; }
-.silver { background-color: silver; color: #000; }
-.bronze { background-color: #cd7f32; color: #000; }
 </style>
 </head>
 <body>
 
 <h1>Rank Your Top 5 Songs</h1>
-<div style="text-align:center; margin-bottom:20px;">
-  <button id="showVoteForm">Vote Now</button>
-</div>
 
-<div id="voteContainer" style="display:none;">
+<div id="voteContainer">
   <form id="voteForm">
     <label for="first">First Pick (5 points)</label>
     <select id="first" required></select>
@@ -97,8 +95,11 @@ button:hover {
     <button type="submit">Submit Vote</button>
   </form>
 </div>
-<h2>Current Scores</h2>
-<ul id="scoreboard"></ul>
+
+<div id="scoreContainer">
+  <h2>Current Scores</h2>
+  <ul id="scoreboard"></ul>
+</div>
 
 <script>
 const songs = [
@@ -108,8 +109,6 @@ const songs = [
   "Hunger Strike - Temple of the Dog",
   "Chop Suey! - System of a Down"
 ];
-
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzieO4TSH-kfYm5yABPLTguCCkVOi8SZGVFYtyuwdce4SgOKHxrOgaxMLgyHUOU-93TNg/exec";
 
 const selects = [
   document.getElementById("first"),
@@ -133,6 +132,7 @@ function populateSelects() {
 
 populateSelects();
 
+
 function updateOptions() {
   const chosen = selects.map(s => s.value).filter(v => v);
   selects.forEach(select => {
@@ -145,8 +145,12 @@ function updateOptions() {
 selects.forEach(select => select.addEventListener("change", updateOptions));
 
 
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzieO4TSH-kfYm5yABPLTguCCkVOi8SZGVFYtyuwdce4SgOKHxrOgaxMLgyHUOU-93TNg/exec";
+
+
 document.getElementById("voteForm").addEventListener("submit", function(e) {
   e.preventDefault();
+
   const data = {
     first: selects[0].value,
     second: selects[1].value,
@@ -162,9 +166,8 @@ document.getElementById("voteForm").addEventListener("submit", function(e) {
     body: JSON.stringify(data)
   })
   .then(() => {
-    alert("Thanks for voting you ho!!");
-    document.getElementById("voteForm").reset();
-    populateSelects();
+    alert("you sinners!");
+    document.getElementById("scoreContainer").style.display = "block"; 
     updateScores();
   })
   .catch(err => alert("Error submitting vote: " + err));
@@ -176,24 +179,17 @@ function updateScores() {
     .then(data => {
       const scoreboard = document.getElementById("scoreboard");
       scoreboard.innerHTML = "";
-      data.sort((a,b) => b.score - a.score);
-      data.forEach((item, index) => {
+      data.sort((a,b) => b.score - a.score).forEach((item, index) => {
         const li = document.createElement("li");
         li.textContent = `${item.song}: ${item.score} points`;
-        if(index === 0) li.classList.add("gold");
-        else if(index === 1) li.classList.add("silver");
-        else if(index === 2) li.classList.add("bronze");
+        if(index === 0) li.style.backgroundColor = "gold";
+        else if(index === 1) li.style.backgroundColor = "silver";
+        else if(index === 2) li.style.backgroundColor = "#cd7f32"; // bronze
         scoreboard.appendChild(li);
       });
     });
 }
-
-setInterval(updateScores, 10000);
-updateScores();
 </script>
 
 </body>
 </html>
-
-
-
