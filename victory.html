@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Winner!</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: #fff;
+    text-align: center;
+    padding-top: 100px;
+  }
+  h1 {
+    font-size: 48px;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+  }
+  #winner {
+    font-size: 36px;
+    margin-top: 50px;
+    padding: 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    display: inline-block;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  }
+  #winnerVideo {
+    margin-top: 30px;
+  }
+  iframe {
+    border-radius: 15px;
+  }
+</style>
+</head>
+<body>
+
+<h1>🎉 The Winner! 🎉</h1>
+<div id="winner">Loading...</div>
+<div id="winnerVideo">Loading video...</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzieO4TSH-kfYm5yABPLTguCCkVOi8SZGVFYtyuwdce4SgOKHxrOgaxMLgyHUOU-93TNg/exec";
+
+const songVideos = {
+  "Say It Ain't So - Weezer": "https://www.youtube.com/embed/bM8D7QJ9aNo",
+  "Halloween - AFI": "https://www.youtube.com/embed/8Z6rKz63u8M",
+  "I Miss You - Blink 182": "https://www.youtube.com/embed/sTSA5L6j0Qs",
+  "Hunger Strike - Temple of the Dog": "https://www.youtube.com/embed/wAGVAYOXeJk",
+  "Chop Suey! - System of a Down": "https://www.youtube.com/embed/CSvFpBOe8eY"
+};
+
+
+fetch(SCRIPT_URL)
+  .then(res => res.json())
+  .then(data => {
+    data.sort((a,b) => b.score - a.score);
+    const winner = data[0].song;
+    document.getElementById("winner").textContent = winner;
+
+
+    const videoURL = songVideos[winner];
+    if(videoURL) {
+      document.getElementById("winnerVideo").innerHTML = `
+        <iframe width="560" height="315" src="${videoURL}" 
+        title="${winner}" frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+        </iframe>`;
+    } else {
+      document.getElementById("winnerVideo").textContent = "Video not available.";
+    }
+  })
+  .catch(err => {
+    document.getElementById("winner").textContent = "Error loading winner.";
+    console.error(err);
+  });
+</script>
+
+</body>
+</html>
