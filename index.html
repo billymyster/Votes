@@ -73,26 +73,30 @@ button:hover {
 <body>
 
 <h1>Rank Your Top 5 Songs</h1>
+<div style="text-align:center; margin-bottom:20px;">
+  <button id="showVoteForm">Vote Now</button>
+</div>
 
-<form id="voteForm">
-  <label for="first">First Pick (5 points)</label>
-  <select id="first" required></select>
+<div id="voteContainer" style="display:none;">
+  <form id="voteForm">
+    <label for="first">First Pick (5 points)</label>
+    <select id="first" required></select>
 
-  <label for="second">Second Pick (4 points)</label>
-  <select id="second" required></select>
+    <label for="second">Second Pick (4 points)</label>
+    <select id="second" required></select>
 
-  <label for="third">Third Pick (3 points)</label>
-  <select id="third" required></select>
+    <label for="third">Third Pick (3 points)</label>
+    <select id="third" required></select>
 
-  <label for="fourth">Fourth Pick (2 points)</label>
-  <select id="fourth" required></select>
+    <label for="fourth">Fourth Pick (2 points)</label>
+    <select id="fourth" required></select>
 
-  <label for="fifth">Fifth Pick (1 point)</label>
-  <select id="fifth" required></select>
+    <label for="fifth">Fifth Pick (1 point)</label>
+    <select id="fifth" required></select>
 
-  <button type="submit">Submit Vote</button>
-</form>
-
+    <button type="submit">Submit Vote</button>
+  </form>
+</div>
 <h2>Current Scores</h2>
 <ul id="scoreboard"></ul>
 
@@ -190,5 +194,6 @@ updateScores();
 
 </body>
 </html>
+
 
 
