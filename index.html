@@ -73,6 +73,20 @@ button:hover {
 </head>
 <body>
 
+<a href="victory.html"
+   style="
+     position: absolute; 
+     top: 75%;  
+     left: 85%; 
+     transform: translate(-50%, -50%);
+     width: 120px; 
+     height: 60px; 
+     display: block;
+     z-index: 1000;
+     background: transparent; 
+   ">
+</a>
+
 <h1>Rank Your Top 5 Songs</h1>
 
 <div id="voteContainer">
@@ -184,7 +198,7 @@ function updateScores() {
         li.textContent = `${item.song}: ${item.score} points`;
         if(index === 0) li.style.backgroundColor = "gold";
         else if(index === 1) li.style.backgroundColor = "silver";
-        else if(index === 2) li.style.backgroundColor = "#cd7f32"; // bronze
+        else if(index === 2) li.style.backgroundColor = "#cd7f32";
         scoreboard.appendChild(li);
       });
     });
