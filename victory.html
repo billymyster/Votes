@@ -2,50 +2,109 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Winner!</title>
+<title>Voting Results</title>
 <style>
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #141e30, #243b55);
     color: #fff;
     text-align: center;
-    padding-top: 150px;
+    padding: 50px;
   }
+
   h1 {
-    font-size: 48px;
-    text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+    font-size: 2.5em;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
   }
-  #winner {
-    font-size: 36px;
-    margin-top: 50px;
-    padding: 20px;
-    background: rgba(255,255,255,0.1);
+
+  table {
+    width: 60%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 15px;
-    display: inline-block;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
+
+  th, td {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  th {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9em;
+    color: #ddd;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .winner {
+    color: #00ffcc;
+    font-weight: bold;
+    text-shadow: 0 0 8px #00ffcc;
+  }
+
 </style>
 </head>
 <body>
 
-<h1>🎉 The Winner! 🎉</h1>
-<div id="winner">Loading...</div>
+<h1> Voting Results </h1>
+
+<table id="resultsTable">
+  <thead>
+    <tr>
+      <th>Song</th>
+      <th>Points</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td colspan="2">Loading results...</td></tr>
+  </tbody>
+</table>
 
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzieO4TSH-kfYm5yABPLTguCCkVOi8SZGVFYtyuwdce4SgOKHxrOgaxMLgyHUOU-93TNg/exec";
 
-
 fetch(SCRIPT_URL)
   .then(res => res.json())
   .then(data => {
+    const tableBody = document.querySelector("#resultsTable tbody");
+    tableBody.innerHTML = "";
 
-    data.sort((a,b) => b.score - a.score);
-    const winner = data[0].song;
-    document.getElementById("winner").textContent = winner;
+    data.sort((a, b) => b.score - a.score);
+
+    data.forEach((entry, index) => {
+      const row = document.createElement("tr");
+      const songCell = document.createElement("td");
+      const scoreCell = document.createElement("td");
+
+      songCell.textContent = entry.song;
+      scoreCell.textContent = entry.score;
+
+      if (index === 0) {
+        songCell.classList.add("winner");
+        scoreCell.classList.add("winner");
+      }
+
+      row.appendChild(songCell);
+      row.appendChild(scoreCell);
+      tableBody.appendChild(row);
+    });
   })
   .catch(err => {
-    document.getElementById("winner").textContent = "Error loading winner.";
     console.error(err);
+    document.querySelector("#resultsTable tbody").innerHTML = 
+      "<tr><td colspan='2'>Error loading results.</td></tr>";
   });
 </script>
 
